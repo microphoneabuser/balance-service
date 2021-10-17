@@ -1,0 +1,23 @@
+port: "8080"
+
+db:
+  Username: "postgres"
+  Host: "localhost"
+  Port: "5436"
+  DBname: "postgres"
+  SSLmode: "disable"
+
+api: 
+  api_key: "e705d300-2e58-11ec-8cce-97dd1818d35e"
+  base_currency: "RUB"
+
+redis:
+  RedisAddr: localhost:6379
+  RedisPassword:
+  RedisDb: 0
+  RedisDefaultdb: 0
+  MinIdleConns: 200
+  PoolSize: 12000
+  PoolTimeout: 240
+  Password: ""
+  DB: 0
