@@ -2,12 +2,14 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/microphoneabuser/balance-service/models"
+	"github.com/microphoneabuser/balance-service/rabbitmq"
 )
 
 func (h *Handler) postTransfer(c *gin.Context) {
@@ -28,6 +30,22 @@ func (h *Handler) postTransfer(c *gin.Context) {
 		newErrorMessage(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	go func() {
+		senderBalance, err := h.services.Account.GetBalance(data.SenderId)
+		if err != nil {
+			log.Printf("Error getting account balance during publishing to queue (id=%d)", data.SenderId)
+			return
+		}
+
+		recipientBalance, err := h.services.Account.GetBalance(data.RecipientId)
+		if err != nil {
+			log.Printf("Error getting account balance during publishing to queue (id=%d)", data.RecipientId)
+			return
+		}
+
+		rabbitmq.PublishTransfer(data, senderBalance, recipientBalance)
+	}()
 
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }

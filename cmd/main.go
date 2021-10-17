@@ -11,6 +11,7 @@ import (
 	"github.com/microphoneabuser/balance-service/pkg/handler"
 	"github.com/microphoneabuser/balance-service/pkg/repository"
 	"github.com/microphoneabuser/balance-service/pkg/service"
+	"github.com/microphoneabuser/balance-service/rabbitmq"
 	"github.com/spf13/viper"
 )
 
@@ -35,6 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize db: %s", err.Error())
 	}
+	defer db.Close()
 
 	redisClient := repository.NewRedisClient(
 		repository.RedisConfig{
@@ -52,10 +54,31 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize redis: %s", err.Error())
 	}
+	defer redisClient.Close()
+
+	// initializing connection with rabbitmq
+	amqpConn, err := rabbitmq.NewRabbitMQConn(&rabbitmq.RabbitConfig{
+		User:     viper.GetString("rabbitmq.User"),
+		Password: viper.GetString("rabbitmq.Password"),
+		Host:     viper.GetString("rabbitmq.Host"),
+		Port:     viper.GetString("rebbitmq.Port"),
+	})
+	if err != nil {
+		log.Fatalf("Failed to initialize rabbitmq: %s", err.Error())
+	}
+	defer amqpConn.Close()
+
+	err = rabbitmq.SetQueue(*amqpConn)
+	if err != nil {
+		log.Fatalf("Failed to set queue: %s", err.Error())
+	}
+	defer rabbitmq.CloseChannel()
 
 	repos := repository.NewRepository(db, redisClient)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
+
+	// init worker goroutine
 
 	srv := new(balanceservice.Server)
 	if err := srv.Run(viper.GetString("port"), handlers.SetupRoutes()); err != nil {

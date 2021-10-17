@@ -21,3 +21,14 @@ redis:
   PoolTimeout: 240
   Password: ""
   DB: 0
+
+rabbitmq:
+  Host: localhost
+  Port: 5672
+  User: guest
+  Password: guest
+  Queue: sms-queue
+  # Exchange: emails-exchange
+  # RoutingKey: emails-routing-key
+  # ConsumerTag: emails-consumer
+  # WorkerPoolSize: 24

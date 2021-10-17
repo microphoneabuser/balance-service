@@ -2,10 +2,12 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/microphoneabuser/balance-service/models"
+	"github.com/microphoneabuser/balance-service/rabbitmq"
 )
 
 func (h *Handler) getBalance(c *gin.Context) {
@@ -46,6 +48,15 @@ func (h *Handler) postAccrual(c *gin.Context) {
 		return
 	}
 
+	go func() {
+		balance, err := h.services.Account.GetBalance(data.Id)
+		if err != nil {
+			log.Printf("Error getting account balance during publishing to queue (id=%d)", data.Id)
+		} else {
+			rabbitmq.PublishAccrualDebiting(data, balance, true)
+		}
+	}()
+
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 func (h *Handler) postDebiting(c *gin.Context) {
@@ -65,6 +76,15 @@ func (h *Handler) postDebiting(c *gin.Context) {
 		newErrorMessage(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	go func() {
+		balance, err := h.services.Account.GetBalance(data.Id)
+		if err != nil {
+			log.Printf("Error getting account balance during publishing to queue (id=%d)", data.Id)
+		} else {
+			rabbitmq.PublishAccrualDebiting(data, balance, false)
+		}
+	}()
 
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
