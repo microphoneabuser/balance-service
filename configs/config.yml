@@ -2,8 +2,8 @@ port: "8080"
 
 db:
   Username: "postgres"
-  Host: "localhost"
-  Port: "5436"
+  Host: "db"
+  Port: "5432"
   DBname: "postgres"
   SSLmode: "disable"
 
@@ -12,7 +12,7 @@ api:
   base_currency: "RUB"
 
 redis:
-  RedisAddr: localhost:6379
+  RedisAddr: redis:6379
   RedisPassword:
   RedisDb: 0
   RedisDefaultdb: 0
@@ -23,12 +23,8 @@ redis:
   DB: 0
 
 rabbitmq:
-  Host: localhost
+  Host: "rabbitmq"
   Port: 5672
   User: guest
   Password: guest
   Queue: sms-queue
-  # Exchange: emails-exchange
-  # RoutingKey: emails-routing-key
-  # ConsumerTag: emails-consumer
-  # WorkerPoolSize: 24

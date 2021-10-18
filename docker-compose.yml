@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  balance-service:
+    build:
+      context: .
+    command: ./wait-for-it.sh db ./balance-service
+    container_name: balance-service
+    ports:
+      - 8080:8080
+    depends_on:
+      - redis
+      - rabbitmq
+      - db
+    environment:
+      - DB_PASSWORD=passwd
+    networks:
+      - my-network
+
+  db:
+    restart: always
+    image: postgres
+    container_name: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=passwd
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST= db
+    ports:
+      - 5432:5432
+    networks:
+      - my-network
+
+  redis:
+    restart: always
+    image: "redis:alpine"
+    container_name: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports: 
+      - 6379:6379
+    networks:
+      - my-network
+
+  rabbitmq:
+    restart: always
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge

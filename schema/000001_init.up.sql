@@ -10,7 +10,7 @@ CREATE TABLE transactions
     sender_id int references accounts(id) on delete cascade,
     recipient_id int references accounts(id) on delete cascade,
     amount int,
-    description varchar(255)
+    description varchar(255),
     timestamp timestamp default current_timestamp
 );
 
