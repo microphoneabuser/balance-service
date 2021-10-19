@@ -7,22 +7,22 @@ import (
 	"github.com/microphoneabuser/balance-service/pkg/repository"
 )
 
-type AuthService struct {
+type AccountService struct {
 	repo repository.Account
 }
 
-func NewAccountService(repo repository.Account) *AuthService {
-	return &AuthService{repo: repo}
+func NewAccountService(repo repository.Account) *AccountService {
+	return &AccountService{repo: repo}
 }
 
-func (s *AuthService) GetBalance(id int) (int, error) {
+func (s *AccountService) GetBalance(id int) (int, error) {
 	balance, err := s.repo.GetBalance(id)
 	if err != nil && err.Error() == "sql: no rows in result set" {
 		return 0, fmt.Errorf("There is no account with id=%d", id)
 	}
 	return balance, err
 }
-func (s *AuthService) Accrual(input models.AccountInput) error {
+func (s *AccountService) Accrual(input models.AccountInput) error {
 	if input.Amount <= 0 {
 		return fmt.Errorf("The amount must be greater than zero")
 	}
@@ -36,7 +36,7 @@ func (s *AuthService) Accrual(input models.AccountInput) error {
 
 	return s.repo.Accrual(input)
 }
-func (s *AuthService) Debiting(input models.AccountInput) error {
+func (s *AccountService) Debiting(input models.AccountInput) error {
 	if input.Amount <= 0 {
 		return fmt.Errorf("The amount must be greater than zero")
 	}
