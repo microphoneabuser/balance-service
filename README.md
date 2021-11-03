@@ -1,6 +1,7 @@
 # Микросервис для работы с балансом пользователей
 
 ## Список используемых технологий:
+
 * [Gin](https://github.com/gin-gonic/gin) - HTTP Go Framework
 * [Postgres](https://github.com/lib/pq) - СУБД PostgreSQL
 * [Redis](https://github.com/go-redis/redis) - Реализация кэширования курса валют (ответа [freecurrencyapi.net](https://freecurrencyapi.net))
